@@ -25,7 +25,7 @@ export function ConversationDetail() {
 	return (
 		<div
 			className={cn(
-				"flex flex-1 flex-col bg-background transition-all min-h-0",
+				"flex flex-1 flex-col bg-background transition-all min-h-0 overflow-hidden w-full",
 				selectedConversationPid === null ? "hidden md:flex" : "flex",
 			)}
 		>

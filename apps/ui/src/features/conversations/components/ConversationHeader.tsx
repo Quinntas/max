@@ -82,12 +82,12 @@ export function ConversationHeader({
 
 	return (
 		<>
-			<div className="flex items-center justify-between border-b px-4 py-3 md:px-6 shrink-0">
-				<div className="flex items-center gap-3 overflow-hidden">
+			<div className="flex items-center justify-between border-b px-3 py-2.5 md:px-6 md:py-3 shrink-0 bg-background safe-area-top">
+				<div className="flex items-center gap-2 md:gap-3 overflow-hidden min-w-0 flex-1">
 					<Button
 						variant="ghost"
 						size="icon"
-						className="md:hidden -ml-2"
+						className="md:hidden shrink-0 -ml-1 size-9"
 						onClick={onBack}
 					>
 						<IconArrowLeft className="size-5" />
@@ -95,7 +95,7 @@ export function ConversationHeader({
 					<Avatar className="size-8 md:size-10 shrink-0">
 						<AvatarFallback>{contact.name[0]}</AvatarFallback>
 					</Avatar>
-					<div className="flex flex-col overflow-hidden">
+					<div className="flex flex-col overflow-hidden min-w-0">
 						<button
 							type="button"
 							onClick={() => setIsContactPanelOpen(true)}
@@ -108,7 +108,7 @@ export function ConversationHeader({
 						</p>
 					</div>
 				</div>
-				<div className="flex items-center gap-1 md:gap-2">
+				<div className="flex items-center gap-1 md:gap-2 shrink-0">
 					<div className="hidden sm:flex items-center gap-2">
 						<DropdownMenu>
 							<DropdownMenuTrigger
@@ -143,7 +143,9 @@ export function ConversationHeader({
 						className="h-4 mx-1 hidden sm:block"
 					/>
 					<DropdownMenu>
-						<DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
+						<DropdownMenuTrigger
+							render={<Button variant="ghost" size="icon" className="size-9" />}
+						>
 							<IconDotsVertical className="size-4" />
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end">

@@ -20,13 +20,13 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 	return (
 		<div
 			className={cn(
-				"flex flex-col gap-1 w-max max-w-[85%] md:max-w-[70%]",
+				"flex flex-col gap-1 max-w-[80%] md:max-w-[70%]",
 				isMe ? "ml-auto items-end" : "items-start",
 			)}
 		>
 			<div
 				className={cn(
-					"rounded-lg px-3 py-2 text-sm",
+					"rounded-lg px-3 py-2 text-sm overflow-hidden",
 					isMe ? "bg-primary text-primary-foreground" : "bg-muted",
 				)}
 			>
@@ -36,7 +36,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 							{message.senderType.replace("_", " ")}
 						</span>
 					)}
-					<span>{message.content}</span>
+					<span className="break-words whitespace-pre-wrap">{message.content}</span>
 				</div>
 			</div>
 			<div

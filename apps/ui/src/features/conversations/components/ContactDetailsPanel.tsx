@@ -158,16 +158,16 @@ export function ContactDetailsPanel({
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent side="right" className="flex flex-col w-full p-0 sm:max-w-md">
-				<SheetHeader className="p-6 pb-0">
-					<div className="flex flex-col items-center gap-4 text-center">
-						<Avatar className="size-24 border-4 border-background shadow-xl">
-							<AvatarFallback className="text-2xl font-bold bg-primary text-primary-foreground">
+			<SheetContent side="right" className="!w-full sm:!w-3/4 sm:!max-w-md flex flex-col p-0 overflow-hidden">
+				<SheetHeader className="p-4 md:p-6 pb-0 shrink-0">
+					<div className="flex flex-col items-center gap-3 md:gap-4 text-center">
+						<Avatar className="h-20 w-20 md:h-24 md:w-24 border-4 border-background shadow-xl">
+							<AvatarFallback className="text-xl md:text-2xl font-bold bg-primary text-primary-foreground">
 								{initials}
 							</AvatarFallback>
 						</Avatar>
 						<div className="space-y-1 w-full overflow-hidden">
-							<SheetTitle className="text-2xl font-bold truncate">
+							<SheetTitle className="text-xl md:text-2xl font-bold truncate">
 								{contact.name}
 							</SheetTitle>
 							<div className="flex items-center justify-center gap-2">
@@ -180,7 +180,7 @@ export function ContactDetailsPanel({
 							</div>
 						</div>
 					</div>
-					<div className="flex items-center gap-3 pt-6">
+					<div className="flex items-center gap-2 md:gap-3 pt-4 md:pt-6">
 						<Button
 							variant="outline"
 							className="flex-1"
@@ -191,7 +191,7 @@ export function ContactDetailsPanel({
 								/>
 							}
 						>
-							<IconMail className="size-4" />
+							<IconMail className="h-4 w-4" />
 							<span>Email</span>
 						</Button>
 						<Button
@@ -204,13 +204,13 @@ export function ContactDetailsPanel({
 								/>
 							}
 						>
-							<IconPhone className="size-4" />
+							<IconPhone className="h-4 w-4" />
 							<span>Call</span>
 						</Button>
 					</div>
 				</SheetHeader>
 
-				<ScrollArea className="flex-1 px-6">
+				<ScrollArea className="flex-1 min-h-0 px-4 md:px-6">
 					<div className="py-6 space-y-6">
 						<div className="space-y-3">
 							<div className="flex items-center gap-2">

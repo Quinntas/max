@@ -47,18 +47,6 @@ export function ConversationList({ className }: ConversationListProps) {
 				<div className="flex items-center gap-2">
 					<SidebarTrigger className="-ml-1" />
 					<h2 className="text-xl font-semibold">Messages</h2>
-					<div className="ml-auto">
-						<Button variant="ghost" size="icon">
-							<IconFilter className="size-4" />
-						</Button>
-					</div>
-				</div>
-				<div className="relative">
-					<IconSearch className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-					<Input
-						placeholder="Search conversations..."
-						className="pl-9 bg-background"
-					/>
 				</div>
 			</div>
 			<div

@@ -22,7 +22,7 @@ function DashboardContent() {
 		<SidebarProvider>
 			<AppSidebar />
 			<SidebarInset className="flex flex-col h-svh overflow-hidden">
-				<main className="flex-1 min-h-0 flex flex-col p-4">
+				<main className="flex-1 min-h-0 flex flex-col p-2 md:p-4">
 					<Outlet />
 				</main>
 			</SidebarInset>

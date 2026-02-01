@@ -57,15 +57,15 @@ export function MessageList({ messages }: MessageListProps) {
 		<div
 			ref={scrollRef}
 			onScroll={handleScroll}
-			className="flex-1 overflow-y-auto p-4 md:p-6 min-h-0 flex flex-col"
+			className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-3 md:px-6 md:py-4 min-h-0 flex flex-col"
 		>
 			{isLoadingMessages && hasMoreMessages && (
 				<div className="flex justify-center py-2">
-					<Spinner className="size-5" />
+					<Spinner className="h-5 w-5" />
 				</div>
 			)}
 			<div className="flex-1" />
-			<div className="space-y-4">
+			<div className="space-y-3 md:space-y-4 w-full">
 				{messages.map((msg) => (
 					<MessageBubble key={msg.pid} message={msg} />
 				))}
