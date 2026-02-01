@@ -54,6 +54,7 @@ export namespace ConversationRepo {
 					phone: contactSchema.phone,
 					data: contactSchema.data,
 					provider: contactSchema.provider,
+					providerId: contactSchema.providerId,
 				},
 			})
 			.from(conversationSchema)
@@ -164,6 +165,7 @@ export namespace ConversationRepo {
 					phone: contactSchema.phone,
 					data: contactSchema.data,
 					provider: contactSchema.provider,
+					providerId: contactSchema.providerId,
 				},
 			})
 			.from(conversationSchema)

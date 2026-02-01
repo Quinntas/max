@@ -1,3 +1,4 @@
+import type { TextSuggestionResponseDto } from "../../ai/resources/textSuggestion/textSuggestion.dto";
 import type {
 	GetConversationsDto,
 	GetConversationsResponseDto,
@@ -16,6 +17,7 @@ export enum LivechatReceiveProtocolType {
 	SEND_MESSAGE = "SEND_MESSAGE",
 	START_TYPING = "START_TYPING",
 	STOP_TYPING = "STOP_TYPING",
+	READY_FOR_AI_SUGGESTION = "READY_FOR_AI_SUGGESTION",
 }
 
 export type LivechatReceiveProtocol =
@@ -42,6 +44,12 @@ export type LivechatReceiveProtocol =
 			payload: {
 				conversationPid: string;
 			};
+	  }
+	| {
+			type: LivechatReceiveProtocolType.READY_FOR_AI_SUGGESTION;
+			payload: {
+				conversationPid: string;
+			};
 	  };
 
 // Send
@@ -49,6 +57,7 @@ export enum LivechatSendProtocolType {
 	GET_CONVERSATIONS = "GET_CONVERSATIONS",
 	GET_MESSAGES = "GET_MESSAGES",
 	NEW_MESSAGE = "NEW_MESSAGE",
+	AI_SUGGESTION = "AI_SUGGESTION",
 	ERROR = "ERROR",
 }
 
@@ -64,6 +73,10 @@ export type LivechatSendProtocol =
 	| {
 			type: LivechatSendProtocolType.NEW_MESSAGE;
 			payload: PublicMessage;
+	  }
+	| {
+			type: LivechatSendProtocolType.AI_SUGGESTION;
+			payload: TextSuggestionResponseDto & { conversationPid: string };
 	  }
 	| {
 			type: LivechatSendProtocolType.ERROR;

@@ -7,7 +7,7 @@ import { cache } from "./cache";
 import { logger } from "./logger";
 import * as schema from "./schema";
 
-const pool = new Pool({
+export const pool = new Pool({
 	connectionString: env.DATABASE_URL,
 });
 

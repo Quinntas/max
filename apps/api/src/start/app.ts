@@ -43,4 +43,4 @@ export const app = new Elysia()
 	.use(contactsRoutes)
 	.use(messagesRoutes)
 	.use(hubspotRoutes)
-	.use(livechatRoutes);
+	.use(livechatRoutes)

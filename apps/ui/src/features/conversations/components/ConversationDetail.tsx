@@ -13,13 +13,20 @@ export function ConversationDetail() {
 		selectedConversationPid,
 		setSelectedConversationPid,
 		sendMessage,
+		aiSuggestions,
+		isLoadingAiSuggestion,
+		requestAiSuggestion,
+		dismissAiSuggestion,
 	} = useConversations();
 
 	const [messageInput, setMessageInput] = useState("");
 
-	const handleSendMessage = () => {
-		sendMessage(messageInput);
+	const handleSendMessage = (content?: string) => {
+		const messageToSend = content ?? messageInput;
+		if (!messageToSend.trim()) return;
+		sendMessage(messageToSend);
 		setMessageInput("");
+		dismissAiSuggestion();
 	};
 
 	return (
@@ -40,6 +47,10 @@ export function ConversationDetail() {
 						value={messageInput}
 						onChange={setMessageInput}
 						onSubmit={handleSendMessage}
+						aiSuggestions={aiSuggestions}
+						isLoadingAiSuggestion={isLoadingAiSuggestion}
+						onRequestAiSuggestion={requestAiSuggestion}
+						onDismissSuggestion={dismissAiSuggestion}
 					/>
 				</>
 			) : (

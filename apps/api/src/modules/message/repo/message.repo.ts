@@ -39,6 +39,33 @@ export namespace MessageRepo {
 			.offset(filters.offset);
 	}
 
+	export function getAllMessages(filters: {
+		conversationPid: string;
+		userId: string;
+	}) {
+		return db
+			.select({
+				pid: messageSchema.pid,
+				senderType: messageSchema.senderType,
+				content: messageSchema.content,
+				contentType: messageSchema.contentType,
+				createdAt: messageSchema.createdAt,
+				updatedAt: messageSchema.updatedAt,
+			})
+			.from(messageSchema)
+			.innerJoin(
+				conversationSchema,
+				eq(messageSchema.conversationId, conversationSchema.id),
+			)
+			.where(
+				and(
+					eq(conversationSchema.pid, filters.conversationPid),
+					eq(conversationSchema.userId, filters.userId),
+				),
+			)
+			.orderBy(asc(messageSchema.id));
+	}
+
 	export async function countMessages(filters: {
 		conversationPid: string;
 		userId: string;

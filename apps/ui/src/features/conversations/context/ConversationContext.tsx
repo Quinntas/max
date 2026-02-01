@@ -29,6 +29,10 @@ export interface ConversationContextType {
 	loadMoreConversations: () => void;
 	hasMoreConversations: boolean;
 	isLoadingConversations: boolean;
+	requestAiSuggestion: () => void;
+	dismissAiSuggestion: () => void;
+	aiSuggestions: string[];
+	isLoadingAiSuggestion: boolean;
 }
 
 const ConversationContext = createContext<ConversationContextType | undefined>(
@@ -45,6 +49,8 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 	const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 	const [hasMoreConversations, setHasMoreConversations] = useState(false);
 	const [isLoadingConversations, setIsLoadingConversations] = useState(false);
+	const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+	const [isLoadingAiSuggestion, setIsLoadingAiSuggestion] = useState(false);
 
 	const messageOffsetRef = useRef(0);
 	const conversationOffsetRef = useRef(0);
@@ -105,6 +111,11 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 					});
 					break;
 				}
+				case "AI_SUGGESTION": {
+					setAiSuggestions(data.payload.messages);
+					setIsLoadingAiSuggestion(false);
+					break;
+				}
 				case "ERROR": {
 					console.error(
 						"[WebSocket Error]",
@@ -113,6 +124,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 					);
 					setIsLoadingMessages(false);
 					setIsLoadingConversations(false);
+					setIsLoadingAiSuggestion(false);
 					isLoadingMoreMessagesRef.current = false;
 					isLoadingMoreConversationsRef.current = false;
 					break;
@@ -127,6 +139,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 			setMessages([]);
 			setHasMoreMessages(false);
 			setIsLoadingMessages(true);
+			setAiSuggestions([]);
 			isLoadingMoreMessagesRef.current = false;
 
 			send({
@@ -141,6 +154,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 		} else {
 			setMessages([]);
 			setHasMoreMessages(false);
+			setAiSuggestions([]);
 			messageOffsetRef.current = 0;
 		}
 	}, [selectedConversationPid, send]);
@@ -196,17 +210,37 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 
 	const sendMessage = (content: string) => {
 		if (!selectedConversationPid) return;
+		if (!content.trim()) return;
 
 		send({
 			type: "SEND_MESSAGE",
 			payload: {
-				content,
+				content: content.trim(),
 				contentType: "TEXT",
 				conversationPid: selectedConversationPid,
 				senderType: "HUMAN_AGENT",
 			},
 		} as WSSendPayload);
 	};
+
+	const requestAiSuggestion = useCallback(() => {
+		if (!selectedConversationPid || isLoadingAiSuggestion) return;
+
+		setIsLoadingAiSuggestion(true);
+		setAiSuggestions([]);
+
+		send({
+			type: "READY_FOR_AI_SUGGESTION",
+			payload: {
+				conversationPid: selectedConversationPid,
+			},
+		} as WSSendPayload);
+	}, [selectedConversationPid, isLoadingAiSuggestion, send]);
+
+	const dismissAiSuggestion = useCallback(() => {
+		setAiSuggestions([]);
+		setIsLoadingAiSuggestion(false);
+	}, []);
 
 	const value = {
 		conversations,
@@ -222,6 +256,10 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 		loadMoreConversations,
 		hasMoreConversations,
 		isLoadingConversations,
+		requestAiSuggestion,
+		dismissAiSuggestion,
+		aiSuggestions,
+		isLoadingAiSuggestion,
 	};
 
 	return (

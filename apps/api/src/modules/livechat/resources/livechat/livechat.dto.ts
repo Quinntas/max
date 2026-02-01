@@ -48,6 +48,12 @@ export const LiveChatBody = t.Union([
 			conversationPid: t.String(),
 		}),
 	}),
+	t.Object({
+		type: t.Literal("READY_FOR_AI_SUGGESTION"),
+		payload: t.Object({
+			conversationPid: t.String(),
+		}),
+	}),
 ]);
 
 export type LiveChatBodyType = typeof LiveChatBody.static;
@@ -123,6 +129,13 @@ export const LiveChatResponse = t.Union([
 			conversationPid: t.String(),
 			createdAt: t.Union([t.Date(), t.String()]),
 			updatedAt: t.Union([t.Date(), t.String()]),
+		}),
+	}),
+	t.Object({
+		type: t.Literal("AI_SUGGESTION"),
+		payload: t.Object({
+			messages: t.Array(t.String()),
+			conversationPid: t.String(),
 		}),
 	}),
 	t.Object({
