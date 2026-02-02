@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 import { useConversations } from "../hooks/useConversations";
 import { ConversationHeader } from "./ConversationHeader";
 import { EmptyConversationState } from "./EmptyConversationState";
-import { MessageInput } from "./MessageInput";
 import { MessageList } from "./MessageList";
+import { MessageInput } from "./MessageInput";
 
 export function ConversationDetail() {
 	const {

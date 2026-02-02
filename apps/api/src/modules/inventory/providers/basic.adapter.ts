@@ -12,7 +12,6 @@ export class BasicInventoryAdapter implements InventoryAdapter {
 		logger.info({ query }, "Searching inventory (Basic Adapter)");
 
 		try {
-			// If no API URL is provided, return mock data
 			if (!this.apiUrl) {
 				return this.getMockVehicles(query);
 			}

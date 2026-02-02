@@ -16,7 +16,6 @@ export namespace ConsentRepo {
 		contactId: number,
 		channel: ContactChannel,
 	): Promise<boolean> {
-		// Map contact channel to consent type
 		let consentType: ConsentType;
 		switch (channel) {
 			case ContactChannel.SMS:

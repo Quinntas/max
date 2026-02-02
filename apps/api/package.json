@@ -7,7 +7,8 @@
 		"dev": "NODE_ENV=development bun --watch src/index.ts",
 		"build": "NODE_ENV=production bun build --compile --production --target=bun-linux-x64 --outfile dist/server ./src/index.ts",
 		"lint": "biome check",
-		"db:push": "drizzle-kit push"
+		"db:push": "drizzle-kit push",
+		"test": "vitest"
 	},
 	"dependencies": {
 		"@ai-sdk/openai-compatible": "^2.0.25",
@@ -32,6 +33,7 @@
 		"mastra": "^1.1.0",
 		"pg": "^8.16.3",
 		"pino": "^10.1.0",
+		"vitest": "^4.0.18",
 		"zod": "^4.0.17"
 	},
 	"devDependencies": {

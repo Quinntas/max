@@ -6,14 +6,12 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 async function sendWebhook(name: string, payload: any) {
     console.log(`\n--------------------------------------------------`);
     console.log(`📡 Sending [${name}]...`);
-    // console.log(`📦 Payload:`, JSON.stringify(payload, null, 2));
 
     try {
         const response = await fetch(WEBHOOK_URL, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                // Mock signature headers if needed (server currently only warns on mismatch)
                 "X-Twilio-Signature": "mock-signature",
             },
             body: JSON.stringify(payload),
