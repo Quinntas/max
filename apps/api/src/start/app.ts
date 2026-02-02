@@ -10,6 +10,7 @@ import { conversationsRoutes } from "./routes/conversations";
 import { livechatRoutes } from "./routes/livechat";
 import { messagesRoutes } from "./routes/messages";
 import { hubspotRoutes } from "./routes/hubspot";
+import { webhooksRoutes } from "./routes/webhooks";
 
 export const app = new Elysia()
 	.use(
@@ -44,3 +45,4 @@ export const app = new Elysia()
 	.use(messagesRoutes)
 	.use(hubspotRoutes)
 	.use(livechatRoutes)
+	.use(webhooksRoutes)

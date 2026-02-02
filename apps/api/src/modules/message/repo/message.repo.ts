@@ -94,4 +94,16 @@ export namespace MessageRepo {
 	export function createMessage(data: MessageInsertModel) {
 		return db.insert(messageSchema).values(data).returning();
 	}
+
+	export function getLastMessagesByConversationId(
+		conversationId: number,
+		limit: number,
+	) {
+		return db
+			.select()
+			.from(messageSchema)
+			.where(eq(messageSchema.conversationId, conversationId))
+			.orderBy(desc(messageSchema.createdAt))
+			.limit(limit);
+	}
 }

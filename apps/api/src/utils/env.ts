@@ -34,6 +34,11 @@ const envSchema = z.object({
 	HUBSPOT_CLIENT_SECRET: z.string(),
 
 	GOOGLE_API_KEY: z.string(),
+
+	TWILIO_ACCOUNT_SID: z.string().optional(),
+	TWILIO_AUTH_TOKEN: z.string().optional(),
+	TWILIO_PHONE_NUMBER: z.string().optional(),
+	TWILIO_WEBHOOK_URL: z.string().optional(),
 });
 
 export const env = envSchema.parse(process.env);

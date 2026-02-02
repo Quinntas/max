@@ -20,6 +20,7 @@ export function ConversationDetail() {
 	} = useConversations();
 
 	const [messageInput, setMessageInput] = useState("");
+	const [suggestionsDisabledForSession, setSuggestionsDisabledForSession] = useState(false);
 
 	const handleSendMessage = (content?: string) => {
 		const messageToSend = content ?? messageInput;
@@ -51,6 +52,9 @@ export function ConversationDetail() {
 						isLoadingAiSuggestion={isLoadingAiSuggestion}
 						onRequestAiSuggestion={requestAiSuggestion}
 						onDismissSuggestion={dismissAiSuggestion}
+						suggestionsDisabledForSession={suggestionsDisabledForSession}
+						onDisableSuggestionsForSession={() => setSuggestionsDisabledForSession(true)}
+						conversationPid={selectedConversationPid}
 					/>
 				</>
 			) : (

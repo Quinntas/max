@@ -2,10 +2,10 @@ import { Elysia, status, t } from "elysia";
 import { createContactCommand } from "../../modules/contact/resources/createContact";
 import { deleteContactCommand } from "../../modules/contact/resources/deleteContact";
 import { getContactCommand } from "../../modules/contact/resources/getContact";
-import { getContactsCommand } from "../../modules/contact/resources/getContacts";
 import { updateContactCommand } from "../../modules/contact/resources/updateContact";
 import { authPlugin } from "../plugins/auth.plugin";
 import { ContactProvider } from "../schema";
+import { getContactsCommand } from "../../modules/contact/resources/getContacts";
 
 export const contactsRoutes = new Elysia({ prefix: "/contacts" })
 	.use(authPlugin)

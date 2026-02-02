@@ -33,6 +33,7 @@ export interface ConversationContextType {
 	dismissAiSuggestion: () => void;
 	aiSuggestions: string[];
 	isLoadingAiSuggestion: boolean;
+	unseenCounts: Record<string, number>;
 }
 
 const ConversationContext = createContext<ConversationContextType | undefined>(
@@ -51,11 +52,17 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 	const [isLoadingConversations, setIsLoadingConversations] = useState(false);
 	const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
 	const [isLoadingAiSuggestion, setIsLoadingAiSuggestion] = useState(false);
+	const [unseenCounts, setUnseenCounts] = useState<Record<string, number>>({});
 
 	const messageOffsetRef = useRef(0);
 	const conversationOffsetRef = useRef(0);
 	const isLoadingMoreMessagesRef = useRef(false);
 	const isLoadingMoreConversationsRef = useRef(false);
+	const selectedConversationPidRef = useRef<string | null>(null);
+	const seenMessagePidsRef = useRef<Set<string>>(new Set());
+	const pendingConversationRefreshRef = useRef(false);
+
+	selectedConversationPidRef.current = selectedConversationPid;
 
 	const { send } = useChatSocket({
 		onConnect: () => {
@@ -73,6 +80,19 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 				case "GET_CONVERSATIONS": {
 					const newConversations = data.payload.data;
 					const pagination = data.payload.pagination;
+
+					if (pendingConversationRefreshRef.current) {
+						pendingConversationRefreshRef.current = false;
+						setConversations((prev) => {
+							const existingPids = new Set(prev.map((c) => c.conversation.pid));
+							const toAdd = newConversations.filter(
+								(c) => !existingPids.has(c.conversation.pid),
+							);
+							return [...toAdd, ...prev];
+						});
+						setIsLoadingConversations(false);
+						break;
+					}
 
 					if (isLoadingMoreConversationsRef.current) {
 						setConversations((prev) => [...prev, ...newConversations]);
@@ -103,12 +123,65 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 					break;
 				}
 				case "NEW_MESSAGE": {
-					setMessages((prev) => {
-						// Prevent duplicates by checking if message already exists
-						const exists = prev.some((msg) => msg.pid === data.payload.pid);
-						if (exists) return prev;
-						return [...prev, data.payload];
+					const newMessage = data.payload;
+					const messageConversationPid = newMessage.conversationPid;
+
+					if (seenMessagePidsRef.current.has(newMessage.pid)) {
+						break;
+					}
+					seenMessagePidsRef.current.add(newMessage.pid);
+
+					setConversations((prev) => {
+						const conversationExists = prev.some(
+							(conv) => conv.conversation.pid === messageConversationPid,
+						);
+
+						if (!conversationExists && !pendingConversationRefreshRef.current) {
+							pendingConversationRefreshRef.current = true;
+							send({
+								type: "GET_CONVERSATIONS",
+								payload: {
+									limit: CONVERSATIONS_PER_PAGE,
+									offset: 0,
+								},
+							});
+							return prev;
+						}
+
+						return prev.map((conv) => {
+							if (conv.conversation.pid === messageConversationPid) {
+								return {
+									...conv,
+									conversation: {
+										...conv.conversation,
+										lastMessageAt: newMessage.createdAt,
+									},
+									lastMessage: {
+										pid: newMessage.pid,
+										senderType: newMessage.senderType,
+										content: newMessage.content,
+										contentType: newMessage.contentType,
+										createdAt: newMessage.createdAt,
+										updatedAt: newMessage.updatedAt,
+									},
+								};
+							}
+							return conv;
+						});
 					});
+
+					if (messageConversationPid === selectedConversationPidRef.current) {
+						setMessages((prev) => {
+							const exists = prev.some((msg) => msg.pid === newMessage.pid);
+							if (exists) return prev;
+							return [...prev, newMessage];
+						});
+					} else {
+						setUnseenCounts((prev) => ({
+							...prev,
+							[messageConversationPid]: (prev[messageConversationPid] || 0) + 1,
+						}));
+					}
 					break;
 				}
 				case "AI_SUGGESTION": {
@@ -141,6 +214,14 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 			setIsLoadingMessages(true);
 			setAiSuggestions([]);
 			isLoadingMoreMessagesRef.current = false;
+
+			setUnseenCounts((prev) => {
+				if (prev[selectedConversationPid]) {
+					const { [selectedConversationPid]: _, ...rest } = prev;
+					return rest;
+				}
+				return prev;
+			});
 
 			send({
 				type: "GET_MESSAGES",
@@ -260,6 +341,7 @@ export function ConversationProvider({ children }: { children: ReactNode }) {
 		dismissAiSuggestion,
 		aiSuggestions,
 		isLoadingAiSuggestion,
+		unseenCounts,
 	};
 
 	return (

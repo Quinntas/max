@@ -34,6 +34,7 @@ export interface Conversation {
 	conversation: ConversationMetadata;
 	user: User;
 	contact: Contact;
+	lastMessage: Message | null;
 }
 
 export interface Message {

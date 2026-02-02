@@ -1,4 +1,5 @@
 import type { ContactProvider } from "../../../contact/repo/contact.schema";
+import { MessageSelectModel, PublicMessage } from "../../../message/repo/message.schema";
 import type { ConversationStatus } from "../../repo/conversation.schema";
 
 export interface GetConversationsDto {
@@ -33,7 +34,8 @@ export interface ConversationWithDetails {
 			notes?: string;
 		} & Record<string, unknown>;
 		provider: ContactProvider;
-	};
+  };
+  lastMessage: Omit<PublicMessage, 'conversationPid'> | null
 }
 
 export interface GetConversationsResponseDto {

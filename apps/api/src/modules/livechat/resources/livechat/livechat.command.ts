@@ -43,30 +43,10 @@ export class LiveChatCommand extends Command<LiveChatDto, LiveChatResponseDto> {
 	): Promise<void> {
 		switch (message.type) {
 			case LivechatReceiveProtocolType.SEND_MESSAGE: {
-				const messageData = await this.createMessageCommand.instrumentedHandle({
+				 await this.createMessageCommand.instrumentedHandle({
 					...message.payload,
 					userId: user.id,
 				});
-
-				await this.wsContainer.send(user.id, {
-					type: LivechatSendProtocolType.NEW_MESSAGE,
-					payload: {
-						pid: messageData.pid,
-						senderType: messageData.senderType,
-						content: messageData.content,
-						contentType: messageData.contentType,
-						conversationPid: message.payload.conversationPid,
-						createdAt: messageData.createdAt,
-						updatedAt: messageData.updatedAt,
-					},
-				});
-
-				this.logMessageToHubSpot(
-					message.payload.conversationPid,
-					user.id,
-					messageData.content,
-					messageData.senderType as "HUMAN_AGENT" | "AI_AGENT",
-				);
 				break;
 			}
 
@@ -87,7 +67,7 @@ export class LiveChatCommand extends Command<LiveChatDto, LiveChatResponseDto> {
 				const conversations =
 					await this.getConversationCommand.instrumentedHandle({
 						...message.payload,
-						userId: user.id,
+            userId: user.id,
 					});
 
 				ws.send({
@@ -131,51 +111,4 @@ export class LiveChatCommand extends Command<LiveChatDto, LiveChatResponseDto> {
 		this.wsContainer.remove(ws.id);
 	}
 
-	private async logMessageToHubSpot(
-		conversationPid: string,
-		userId: string,
-		content: string,
-		senderType: "HUMAN_AGENT" | "AI_AGENT",
-	): Promise<void> {
-		try {
-			const [conversationDetails] =
-				await ConversationRepo.getConversationByPidWithDetails(
-					conversationPid,
-					userId,
-				);
-
-			if (!conversationDetails) {
-				logger.warn({
-					type: "LiveChatCommand.LogActivity.ConversationNotFound",
-					conversationPid,
-					userId,
-				});
-				return;
-			}
-
-			const { contact } = conversationDetails;
-
-			if (contact.provider !== ContactProvider.HUBSPOT || !contact.providerId) {
-				logger.info({
-					type: "LiveChatCommand.LogActivity.SkippedNonHubSpot",
-					conversationPid,
-					provider: contact.provider,
-				});
-				return;
-			}
-
-			await this.logActivityCommand.instrumentedHandle({
-				hubspotContactId: contact.providerId,
-				message: content,
-				senderType,
-				timestamp: new Date(),
-			});
-		} catch (error) {
-			logger.error({
-				type: "LiveChatCommand.LogActivity.Error",
-				conversationPid,
-				error: error instanceof Error ? error.message : "Unknown error",
-			});
-		}
-	}
 }

@@ -1,4 +1,6 @@
 import {
+	IconChevronLeft,
+	IconChevronRight,
 	IconEdit,
 	IconRefresh,
 	IconSend,
@@ -24,6 +26,9 @@ interface MessageInputProps {
 	isLoadingAiSuggestion?: boolean;
 	onRequestAiSuggestion?: () => void;
 	onDismissSuggestion?: () => void;
+	suggestionsDisabledForSession?: boolean;
+	onDisableSuggestionsForSession?: () => void;
+	conversationPid?: string | null;
 }
 
 export function MessageInput({
@@ -34,6 +39,9 @@ export function MessageInput({
 	isLoadingAiSuggestion = false,
 	onRequestAiSuggestion,
 	onDismissSuggestion,
+	suggestionsDisabledForSession = false,
+	onDisableSuggestionsForSession,
+	conversationPid,
 }: MessageInputProps) {
 	const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
 	const [isEditMode, setIsEditMode] = useState(false);
@@ -47,6 +55,12 @@ export function MessageInput({
 		: null;
 
 	useEffect(() => {
+		hasTriggeredRef.current = false;
+		setSelectedSuggestionIndex(0);
+		setIsEditMode(false);
+	}, [conversationPid]);
+
+	useEffect(() => {
 		if (debounceRef.current) {
 			clearTimeout(debounceRef.current);
 			debounceRef.current = null;
@@ -57,6 +71,7 @@ export function MessageInput({
 			!isLoadingAiSuggestion &&
 			!hasSuggestions &&
 			!hasTriggeredRef.current &&
+			!suggestionsDisabledForSession &&
 			onRequestAiSuggestion
 		) {
 			debounceRef.current = setTimeout(() => {
@@ -70,7 +85,13 @@ export function MessageInput({
 				clearTimeout(debounceRef.current);
 			}
 		};
-	}, [value, isLoadingAiSuggestion, hasSuggestions, onRequestAiSuggestion]);
+	}, [
+		value,
+		isLoadingAiSuggestion,
+		hasSuggestions,
+		suggestionsDisabledForSession,
+		onRequestAiSuggestion,
+	]);
 
 	useEffect(() => {
 		if (!hasSuggestions && !isLoadingAiSuggestion) {
@@ -106,7 +127,8 @@ export function MessageInput({
 		setIsEditMode(false);
 		hasTriggeredRef.current = true;
 		onDismissSuggestion?.();
-	}, [onDismissSuggestion]);
+		onDisableSuggestionsForSession?.();
+	}, [onDismissSuggestion, onDisableSuggestionsForSession]);
 
 	const handleRegenerate = useCallback(() => {
 		if (onRequestAiSuggestion && !isLoadingAiSuggestion) {
@@ -131,8 +153,26 @@ export function MessageInput({
 		}
 	}, [hasSuggestions, aiSuggestions.length]);
 
+	const handleManualGenerate = useCallback(() => {
+		if (onRequestAiSuggestion && !isLoadingAiSuggestion && !hasSuggestions) {
+			onRequestAiSuggestion();
+		}
+	}, [onRequestAiSuggestion, isLoadingAiSuggestion, hasSuggestions]);
+
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
+			if (
+				e.key === "g" &&
+				(e.metaKey || e.ctrlKey) &&
+				!hasSuggestions &&
+				!isLoadingAiSuggestion
+			) {
+				e.preventDefault();
+				e.stopPropagation();
+				handleManualGenerate();
+				return;
+			}
+
 			if (e.key === "d" && (e.metaKey || e.ctrlKey) && hasSuggestions) {
 				e.preventDefault();
 				e.stopPropagation();
@@ -181,6 +221,7 @@ export function MessageInput({
 		handleEditSuggestion,
 		handleDismissSuggestion,
 		handleRegenerate,
+		handleManualGenerate,
 	]);
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -193,6 +234,11 @@ export function MessageInput({
 
 	const showSuggestionUI = hasSuggestions && !isEditMode;
 	const showLoadingUI = isLoadingAiSuggestion && !hasSuggestions;
+	const showGenerateHint =
+		!hasSuggestions &&
+		!isLoadingAiSuggestion &&
+		suggestionsDisabledForSession &&
+		onRequestAiSuggestion;
 
 	return (
 		<div className="border-t shrink-0 bg-background">
@@ -226,53 +272,26 @@ export function MessageInput({
 										<Button
 											type="button"
 											variant="ghost"
-											size="icon-xs"
 											onClick={handlePrevSuggestion}
 											className="text-muted-foreground hover:text-foreground"
 										>
 											<span className="sr-only">Previous</span>
-											<svg
-												className="h-3 w-3"
-												fill="none"
-												viewBox="0 0 24 24"
-												stroke="currentColor"
-											>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth={2}
-													d="M15 19l-7-7 7-7"
-												/>
-											</svg>
+											<IconChevronLeft className="h-3 w-3" />
 										</Button>
 										<Button
 											type="button"
 											variant="ghost"
-											size="icon-xs"
 											onClick={handleNextSuggestion}
 											className="text-muted-foreground hover:text-foreground"
 										>
 											<span className="sr-only">Next</span>
-											<svg
-												className="h-3 w-3"
-												fill="none"
-												viewBox="0 0 24 24"
-												stroke="currentColor"
-											>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth={2}
-													d="M9 5l7 7-7 7"
-												/>
-											</svg>
+											<IconChevronRight className="h-3 w-3" />
 										</Button>
 									</div>
 								)}
 								<Button
 									type="button"
 									variant="ghost"
-									size="icon-xs"
 									onClick={handleDismissSuggestion}
 									className="text-muted-foreground hover:text-foreground"
 								>
@@ -288,7 +307,7 @@ export function MessageInput({
 							</p>
 						</div>
 
-						<div className="flex items-center gap-2 px-3 py-2 border-t border-primary/10 bg-background/50">
+						<div className="flex flex-wrap items-center gap-2 px-3 py-2 border-t border-primary/10 bg-background/50">
 							<Tooltip>
 								<TooltipTrigger
 									render={
@@ -393,6 +412,34 @@ export function MessageInput({
 			)}
 
 			<form onSubmit={handleSubmit} className="p-3 md:p-4">
+				{showGenerateHint && (
+					<div className="flex items-center justify-between mb-2 text-xs text-muted-foreground">
+						<span>AI suggestions disabled for this session</span>
+						<Tooltip>
+							<TooltipTrigger
+								render={
+									<Button
+										type="button"
+										variant="ghost"
+										size="sm"
+										onClick={handleManualGenerate}
+										className="gap-1.5 h-7 text-xs"
+									/>
+								}
+							>
+								<IconSparkles className="h-3 w-3" />
+								Generate
+							</TooltipTrigger>
+							<TooltipContent>
+								<div className="flex items-center gap-1.5">
+									<span>Generate AI suggestion</span>
+									<Kbd>Ctrl</Kbd>
+									<Kbd>G</Kbd>
+								</div>
+							</TooltipContent>
+						</Tooltip>
+					</div>
+				)}
 				<div
 					className={cn(
 						"flex gap-2 min-w-0",
@@ -423,7 +470,7 @@ export function MessageInput({
 							}
 						}}
 						className={cn(
-							"flex-1 min-w-0 text-base md:text-sm min-h-[40px] max-h-32 resize-none",
+							"flex-1 min-w-0 text-base md:text-sm min-h-10 max-h-32 resize-none",
 							showSuggestionUI && "opacity-70 focus:opacity-100",
 						)}
 						rows={1}
@@ -439,7 +486,7 @@ export function MessageInput({
 				</div>
 
 				{showSuggestionUI && (
-					<div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
+					<div className="hidden md:flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-muted-foreground">
 						<span className="flex items-center gap-1">
 							<Kbd>Enter</Kbd> to send
 						</span>

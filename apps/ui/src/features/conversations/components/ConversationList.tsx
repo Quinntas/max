@@ -1,7 +1,4 @@
-import { IconFilter, IconSearch } from "@tabler/icons-react";
-import { useCallback, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useCallback, useMemo, useRef } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
@@ -20,9 +17,22 @@ export function ConversationList({ className }: ConversationListProps) {
 		loadMoreConversations,
 		hasMoreConversations,
 		isLoadingConversations,
+		unseenCounts,
 	} = useConversations();
 
 	const scrollRef = useRef<HTMLDivElement>(null);
+
+	const sortedConversations = useMemo(() => {
+		return [...conversations].sort((a, b) => {
+			const aTime = a.conversation.lastMessageAt
+				? new Date(a.conversation.lastMessageAt).getTime()
+				: 0;
+			const bTime = b.conversation.lastMessageAt
+				? new Date(b.conversation.lastMessageAt).getTime()
+				: 0;
+			return bTime - aTime;
+		});
+	}, [conversations]);
 
 	const handleScroll = useCallback(() => {
 		const container = scrollRef.current;
@@ -55,12 +65,13 @@ export function ConversationList({ className }: ConversationListProps) {
 				className="flex-1 min-h-0 overflow-y-auto"
 			>
 				<div className="px-2 pb-4">
-					{conversations.map((conv) => (
+					{sortedConversations.map((conv) => (
 						<ConversationItem
 							key={conv.conversation.pid}
 							conversation={conv}
 							isSelected={selectedConversationPid === conv.conversation.pid}
 							onClick={() => setSelectedConversationPid(conv.conversation.pid)}
+							unseenCount={unseenCounts[conv.conversation.pid] || 0}
 						/>
 					))}
 					{isLoadingConversations && (

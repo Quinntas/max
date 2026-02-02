@@ -42,7 +42,10 @@ const STATUS_CONFIG: Record<
 function StatusIcon({
 	status,
 	className,
-}: { status: ConversationStatus; className?: string }) {
+}: {
+	status: ConversationStatus;
+	className?: string;
+}) {
 	switch (status) {
 		case "NEW":
 			return <IconCircle className={className} />;
@@ -82,7 +85,7 @@ export function ConversationHeader({
 
 	return (
 		<>
-			<div className="flex items-center justify-between border-b px-3 py-2.5 md:px-6 md:py-3 shrink-0 bg-background safe-area-top">
+			<div className="flex items-center justify-between border-b mt-2  px-3 py-2.5 md:px-6 md:py-3 shrink-0 bg-background safe-area-top">
 				<div className="flex items-center gap-2 md:gap-3 overflow-hidden min-w-0 flex-1">
 					<Button
 						variant="ghost"
@@ -93,7 +96,7 @@ export function ConversationHeader({
 						<IconArrowLeft className="size-5" />
 					</Button>
 					<Avatar className="size-8 md:size-10 shrink-0">
-						<AvatarFallback>{contact.name[0]}</AvatarFallback>
+						<AvatarFallback>{contact.email[0]}</AvatarFallback>
 					</Avatar>
 					<div className="flex flex-col overflow-hidden min-w-0">
 						<button
@@ -101,10 +104,10 @@ export function ConversationHeader({
 							onClick={() => setIsContactPanelOpen(true)}
 							className="text-sm font-semibold truncate text-left hover:underline cursor-pointer"
 						>
-							{contact.name}
-						</button>
-						<p className="text-xs text-muted-foreground truncate hidden sm:block">
 							{contact.email}
+						</button>
+						<p className="text-xs text-muted-foreground truncate sm:block">
+							{contact.name}
 						</p>
 					</div>
 				</div>
@@ -112,7 +115,9 @@ export function ConversationHeader({
 					<div className="hidden sm:flex items-center gap-2">
 						<DropdownMenu>
 							<DropdownMenuTrigger
-								render={<Button variant="outline" size="sm" className="gap-2" />}
+								render={
+									<Button variant="outline" size="sm" className="gap-2" />
+								}
 							>
 								<StatusIcon
 									status={currentStatus}
@@ -173,12 +178,12 @@ export function ConversationHeader({
 							<DropdownMenuSeparator className="sm:hidden" />
 							<DropdownMenuItem onClick={() => setIsContactPanelOpen(true)}>
 								<IconUser className="mr-2 size-4" />
-								View Contact
+								Details
 							</DropdownMenuItem>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem variant="destructive" onClick={handleDelete}>
 								<IconTrash className="mr-2 size-4" />
-								Delete Conversation
+								Delete
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>

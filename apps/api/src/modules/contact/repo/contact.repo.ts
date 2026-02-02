@@ -177,4 +177,31 @@ export namespace ContactRepo {
 			)
 			.returning();
 	}
+
+	export function getContactByPhoneAndDealership(
+		phone: string,
+		dealershipId: number,
+	) {
+		return db
+			.select()
+			.from(contactSchema)
+			.where(
+				and(
+					eq(contactSchema.phone, phone),
+					eq(contactSchema.dealershipId, dealershipId),
+				),
+			)
+			.limit(1);
+	}
+
+	export function updateContactById(
+		id: number,
+		data: Partial<ContactInsertModel>,
+	) {
+		return db
+			.update(contactSchema)
+			.set(data)
+			.where(eq(contactSchema.id, id))
+			.returning();
+	}
 }
